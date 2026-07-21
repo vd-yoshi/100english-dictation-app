@@ -223,6 +223,10 @@ with tab1:
     st.markdown("#### **Step 2: マイクに向かって話す**")
     st.caption("🎙️ 下のボタンを押して、聴き取った英文をマイクに向かって発話してください。")
 
+    # セッションステートにテキスト入力用のキーを初期化
+    if f"input_text_{day}" not in st.session_state:
+      st.session_state[f"input_text_{day}"] = ""
+
     # 🎙️ マイクからの音声認識
     spoken_text = speech_to_text(
         language="en",  # 英語で認識
@@ -231,13 +235,18 @@ with tab1:
         key=f"mic_{day}",
     )
 
-    # 音声入力されたテキストがあればそれを反映、なければ空欄（手動入力も可能）
-    default_input = spoken_text if spoken_text else ""
+    # 新しい音声入力結果が得られた場合のみ、テキストを更新して画面を再読み込み
+    if spoken_text and spoken_text != st.session_state.get(
+        f"last_spoken_{day}"
+    ):
+      st.session_state[f"input_text_{day}"] = spoken_text
+      st.session_state[f"last_spoken_{day}"] = spoken_text
+      st.rerun()
 
-    # ディクテーション入力欄
+    # ディクテーション入力欄（セッションステートで値を保持するため、手動修正も消えません）
     user_input = st.text_area(
         "入力されたテキスト（手動で修正もできます）：",
-        value=default_input,
+        key=f"input_text_{day}",
         height=180,
         placeholder="ここに音声入力のテキストが反映されます...",
     )
