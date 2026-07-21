@@ -56,7 +56,7 @@ if not check_password():
 # 3. 定数・パス設定 & 音声自動ダウンロード
 # --------------------------------------------------
 AUDIO_EXTRACT_DIR = "audio_files"
-TXT_PATH = "transcripts.txt"
+TXT_PATH = "whisper.txt"
 CSV_PATH = "dictation_history.csv"
 
 
