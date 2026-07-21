@@ -11,6 +11,7 @@ import urllib.request
 import zipfile
 import pandas as pd
 import streamlit as st
+from streamlit_mic_recorder import speech_to_text
 
 # --------------------------------------------------
 # 1. ページ基本設定
@@ -210,11 +211,25 @@ with tab1:
     else:
       st.warning(f"⚠️ Day {day} の音声ファイルが見つかりません。")
 
-    # ディクテーション入力欄（高さを大きめに確保）
+    # 🎙️ マイクからの音声認識（ブラウザの音声入力をテキスト化）
+    spoken_text = speech_to_text(
+        language="en",  # 英語で認識
+        start_prompt="🎙️ マイクで話して入力する",
+        stop_prompt="⏹️ 録音を停止",
+        key=f"mic_{day}",
+    )
+
+    # 音声入力されたテキストがあればそれを反映、なければ空欄（手動入力も可能）
+    default_input = spoken_text if spoken_text else ""
+
+    # ディクテーション入力欄（音声入力結果が自動で入ります）
     user_input = st.text_area(
-        "音声を聞いて英文を入力してください：",
+        "音声を聞いて英文を入力（またはマイクで発話）してください：",
+        value=default_input,
         height=260,
-        placeholder="Here is space for your typing...",
+        placeholder=(
+            "Here is space for your typing or use the mic button above..."
+        ),
     )
 
     btn_col1, btn_col2 = st.columns(2)
