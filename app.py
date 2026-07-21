@@ -206,15 +206,27 @@ with tab1:
     st.subheader(f"Day {day} の学習")
     audio_file = get_audio_path(day)
 
+    # ステップ1：音声を聞く
+    st.markdown("#### **Step 1: 音声を聴く**")
+    st.caption(
+        "🎧 音声を再生してしっかりリスニングします。（聴き終わったら/途中で止める場合はプレイヤーの一時停止ボタンを押してください）"
+    )
+
     if audio_file and os.path.exists(audio_file):
       st.audio(audio_file)
     else:
       st.warning(f"⚠️ Day {day} の音声ファイルが見つかりません。")
 
-    # 🎙️ マイクからの音声認識（ブラウザの音声入力をテキスト化）
+    st.markdown("---")
+
+    # ステップ2：マイクで話す
+    st.markdown("#### **Step 2: マイクに向かって話す**")
+    st.caption("🎙️ 下のボタンを押して、聴き取った英文をマイクに向かって発話してください。")
+
+    # 🎙️ マイクからの音声認識
     spoken_text = speech_to_text(
         language="en",  # 英語で認識
-        start_prompt="🎙️ マイクで話して入力する",
+        start_prompt="🎙️ 録音を開始する（話す）",
         stop_prompt="⏹️ 録音を停止",
         key=f"mic_{day}",
     )
@@ -222,14 +234,12 @@ with tab1:
     # 音声入力されたテキストがあればそれを反映、なければ空欄（手動入力も可能）
     default_input = spoken_text if spoken_text else ""
 
-    # ディクテーション入力欄（音声入力結果が自動で入ります）
+    # ディクテーション入力欄
     user_input = st.text_area(
-        "音声を聞いて英文を入力（またはマイクで発話）してください：",
+        "入力されたテキスト（手動で修正もできます）：",
         value=default_input,
-        height=260,
-        placeholder=(
-            "Here is space for your typing or use the mic button above..."
-        ),
+        height=180,
+        placeholder="ここに音声入力のテキストが反映されます...",
     )
 
     btn_col1, btn_col2 = st.columns(2)
