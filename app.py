@@ -221,11 +221,15 @@ with tab1:
 
     # ステップ2：マイクで話す
     st.markdown("#### **Step 2: マイクに向かって話す**")
-    st.caption("🎙️ 下のボタンを押して、聴き取った英文をマイクに向かって発話してください。")
+    st.caption(
+        "🎙️ 下のボタンを押して発話してください。（複数回に分けて話すと文章が後ろに追加されます）"
+    )
 
-    # セッションステートにテキスト入力用のキーを初期化
+    # セッションステートの初期化
     if f"input_text_{day}" not in st.session_state:
       st.session_state[f"input_text_{day}"] = ""
+    if f"last_spoken_{day}" not in st.session_state:
+      st.session_state[f"last_spoken_{day}"] = ""
 
     # 🎙️ マイクからの音声認識
     spoken_text = speech_to_text(
@@ -235,15 +239,22 @@ with tab1:
         key=f"mic_{day}",
     )
 
-    # 新しい音声入力結果が得られた場合のみ、テキストを更新して画面を再読み込み
-    if spoken_text and spoken_text != st.session_state.get(
-        f"last_spoken_{day}"
-    ):
-      st.session_state[f"input_text_{day}"] = spoken_text
+    # 新しい音声入力があった場合、既存のテキストに「追記」する
+    if spoken_text and spoken_text != st.session_state[f"last_spoken_{day}"]:
+      current_text = st.session_state[f"input_text_{day}"]
+      if current_text.strip():
+        # すでに文字がある場合はスペースを空けて後ろに追加
+        st.session_state[f"input_text_{day}"] = (
+            current_text.strip() + " " + spoken_text
+        )
+      else:
+        # 空っぽの場合はそのまま代入
+        st.session_state[f"input_text_{day}"] = spoken_text
+
       st.session_state[f"last_spoken_{day}"] = spoken_text
       st.rerun()
 
-    # ディクテーション入力欄（セッションステートで値を保持するため、手動修正も消えません）
+    # ディクテーション入力欄（手動修正も保持されます）
     user_input = st.text_area(
         "入力されたテキスト（手動で修正もできます）：",
         key=f"input_text_{day}",
